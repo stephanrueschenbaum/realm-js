@@ -71,13 +71,11 @@ export class User<
         fetchProfile = true,
     ) {
         // See https://github.com/mongodb/stitch-js-sdk/blob/310f0bd5af80f818cdfbc3caf1ae29ffa8e9c7cf/packages/core/sdk/src/auth/internal/CoreStitchAuth.ts#L746-L780
-        const response = await app.appTransport.fetch(
-            {
-                method: "POST",
-                path: `/auth/providers/${credentials.providerName}/login`,
-                body: credentials.payload,
-            },
-        );
+        const response = await app.appTransport.fetch({
+            method: "POST",
+            path: `/auth/providers/${credentials.providerName}/login`,
+            body: credentials.payload,
+        });
         // Spread out values from the response and ensure they're valid
         const {
             user_id: userId,
@@ -270,19 +268,16 @@ export class User<
         // Hydrate tokens
         const accessToken = this.storage.accessToken;
         const refreshToken = this.storage.refreshToken;
-        if (
-            typeof accessToken === "string" &&
-            typeof refreshToken === "string"
-        ) {
+        const profile = this.storage.profile;
+        if (typeof accessToken === "string") {
             this._accessToken = accessToken;
-            this._refreshToken = refreshToken;
-        } else {
-            throw new Error(
-                `Failed hydrating user (${this.id}), missing access or refresh token`,
-            );
         }
-        // Hydrate any profile
-        this._profile = this.storage.profile;
+        if (typeof refreshToken === "string") {
+            this._refreshToken = refreshToken;
+        }
+        if (typeof profile === "object") {
+            this._profile = profile;
+        }
     }
 
     private async refreshAccessToken() {
