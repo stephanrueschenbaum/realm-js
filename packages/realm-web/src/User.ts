@@ -20,7 +20,7 @@ import type { App } from "./App";
 import { AuthenticatedTransport } from "./transports";
 import { UserProfile } from "./UserProfile";
 import { UserStorage } from "./UserStorage";
-import { Storage } from "./storage";
+import { FunctionsFactory } from "./FunctionsFactory";
 
 // Disabling requiring JSDoc for now - as the User class is exported as the Realm.User interface, which is already documented.
 /* eslint-disable jsdoc/require-jsdoc */
@@ -54,6 +54,9 @@ export class User<
      * The app that this user is associated with.
      */
     public readonly app: App<FunctionsFactoryType, CustomDataType>;
+
+    public readonly functions: FunctionsFactoryType &
+        Realm.BaseFunctionsFactory;
 
     /**
      * Log in and create a user
@@ -142,6 +145,7 @@ export class User<
         this.transport = new AuthenticatedTransport(app.baseTransport, {
             currentUser: this,
         });
+        this.functions = FunctionsFactory.create(this.transport);
         this.storage = new UserStorage(app.storage, id);
         // Store tokens in storage for later hydration
         if (accessToken) {
@@ -194,10 +198,6 @@ export class User<
     }
 
     get customData(): CustomDataType {
-        throw new Error("Not yet implemented");
-    }
-
-    get functions(): FunctionsFactoryType & Realm.BaseFunctionsFactory {
         throw new Error("Not yet implemented");
     }
 
